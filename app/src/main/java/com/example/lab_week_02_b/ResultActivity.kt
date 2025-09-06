@@ -1,5 +1,7 @@
 package com.example.lab_week_02_b
 
+import android.app.Activity
+import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.widget.TextView
@@ -9,6 +11,7 @@ import androidx.constraintlayout.widget.ConstraintLayout
 class ResultActivity : AppCompatActivity() {
     companion object {
         private const val COLOR_KEY = "COLOR_KEY"
+        private const val ERROR_KEY = "ERROR_KEY"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -17,10 +20,21 @@ class ResultActivity : AppCompatActivity() {
 
         if (intent != null) {
             val colorCode = intent.getStringExtra(COLOR_KEY)
-
             val backgroundScreen =
                 findViewById<ConstraintLayout>(R.id.background_screen)
-            backgroundScreen.setBackgroundColor(Color.parseColor("#$colorCode"))
+
+            try {
+                // coba set background warna
+                backgroundScreen.setBackgroundColor(Color.parseColor("#$colorCode"))
+            } catch (ex: IllegalArgumentException) {
+                // kalau gagal (kode warna invalid), kirim balik error ke MainActivity
+                Intent().let { errorIntent ->
+                    errorIntent.putExtra(ERROR_KEY, true)
+                    setResult(Activity.RESULT_OK, errorIntent)
+                    finish()
+                    return // supaya tidak lanjut ke bawah
+                }
+            }
 
             val resultMessage =
                 findViewById<TextView>(R.id.color_code_result_message)
